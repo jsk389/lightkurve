@@ -54,9 +54,9 @@ class Periodogram(object):
         if not isinstance(frequencies, u.Quantity):
             frequencies = u.Quantity(frequencies, u.microhertz)
         lombscargle = LombScargle((lc.time * u.day).to(u.second), lc.flux * 1e6)
-        uHz_conv = 1./(((1./u.day).to(u.microhertz)))
+        bin_width = np.median(np.diff(frequencies)) # Conversion factor to uHz
         powers = lombscargle.power(frequencies, method="fast", normalization="psd")
-        powers *= uHz_conv / len(lc.time)  # Convert to ppm^2/uHz
+        powers /= (len(lc.time) * bin_width)  # Convert to ppm^2/uHz
         return Periodogram(frequencies=frequencies, powers=powers)
 
     def plot(self, frequency=None, scale="linear", ax=None, numax=None, **kwargs):
